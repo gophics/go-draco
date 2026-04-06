@@ -1,0 +1,49 @@
+name: Fuzz
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  root:
+    name: Root fuzz
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Fuzz decode
+        run: go test . -run '^$' -fuzz=FuzzDecode -fuzztime=2m
+
+      - name: Fuzz detect geometry
+        run: go test . -run '^$' -fuzz=FuzzDetectGeometry -fuzztime=2m
+
+  metadata:
+    name: Metadata fuzz
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Fuzz metadata decode
+        run: go test ./metadata -run '^$' -fuzz=FuzzDecodeGeometryMetadata -fuzztime=2m
