@@ -1,0 +1,13 @@
+.idea/
+.gocache/
+.gocache-fuzz/
+.golangci-cache/
+.gomodcache/
+tmpdebug/
+.tmp_probe.go
+cpu*.out
+mem*.out
+coverage.out
+.coverprofile
+*.pre
+*.test.exe

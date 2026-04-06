@@ -1,0 +1,143 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+  allow-parallel-runners: true
+
+linters:
+  default: none
+  enable:
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - canonicalheader
+    - copyloopvar
+    - dogsled
+    - dupword
+    - dupl
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exptostd
+    - fatcontext
+    - forcetypeassert
+    - funlen
+    - goconst
+    - gocheckcompilerdirectives
+    - gocritic
+    - gocyclo
+    - godot
+    - gomoddirectives
+    - gosec
+    - govet
+    - ineffassign
+    - makezero
+    - misspell
+    - mirror
+    - nakedret
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - noctx
+    - nolintlint
+    - nosprintfhostport
+    - perfsprint
+    - predeclared
+    - reassign
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - tagalign
+    - testableexamples
+    - testifylint
+    - thelper
+    - unconvert
+    - unparam
+    - unqueryvet
+    - unused
+    - usestdlibvars
+    - wastedassign
+    - wsl_v5
+  settings:
+    errcheck:
+      check-blank: true
+      check-type-assertions: true
+    funlen:
+      lines: 160
+      statements: 90
+    gocyclo:
+      min-complexity: 50
+    gocritic:
+      disabled-checks:
+        - hugeParam
+        - ifElseChain
+      enabled-tags:
+        - diagnostic
+        - performance
+    govet:
+      enable:
+        - shadow
+      settings:
+        shadow:
+          strict: false
+    gosec:
+      excludes:
+        - G115
+        - G602
+    misspell:
+      locale: US
+    revive:
+      confidence: 0
+    wsl_v5:
+      default: none
+      enable:
+        - after-block
+        - leading-whitespace
+        - trailing-whitespace
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - dupl
+          - funlen
+          - goconst
+          - gosec
+          - unparam
+        path: (.+)_test\.go$
+      - linters:
+          - dogsled
+          - dupl
+        path: edgebreaker_(decode|encode)\.go$
+      - linters:
+          - funlen
+          - gocyclo
+        path: (decoder|encoder|edgebreaker_decode|edgebreaker_encode|integer_codec|kd_tree|mesh|mesh_prediction|internal/codec/kdtree/dynamic)\.go$
+      - linters:
+          - revive
+        text: package-comments
+      - linters:
+          - revive
+        text: exported
+      - linters:
+          - revive
+        text: context-as-argument
+      - linters:
+          - revive
+        text: redefines-builtin-id
+      - linters:
+          - revive
+        text: unused-parameter
+      - linters:
+          - govet
+        text: 'shadow: declaration of "err"'
+    paths:
+      - vendor
+      - third_party$
+      - builtin$
+      - examples$
