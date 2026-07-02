@@ -3,6 +3,7 @@
 .gocache-fuzz/
 .golangci-cache/
 .gomodcache/
+graphify-out/
 tmpdebug/
 .tmp_probe.go
 cpu*.out

@@ -1,11 +1,13 @@
 package draco
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"slices"
+	"strings"
 	"sync"
 	"unsafe"
 
@@ -207,6 +209,10 @@ func readAllContext(ctx context.Context, r io.Reader, maxBytes int64) ([]byte, e
 		return nil, err
 	}
 
+	if data, ok, err := readKnownLenContext(ctx, r, maxBytes); ok {
+		return data, err
+	}
+
 	const chunkSize = 32 << 10
 	buf := make([]byte, chunkSize)
 	var out []byte
@@ -235,6 +241,39 @@ func readAllContext(ctx context.Context, r io.Reader, maxBytes int64) ([]byte, e
 			return nil, err
 		}
 	}
+}
+
+func readKnownLenContext(ctx context.Context, r io.Reader, maxBytes int64) ([]byte, bool, error) {
+	var remaining int
+	switch reader := r.(type) {
+	case *bytes.Buffer:
+		remaining = reader.Len()
+	case *bytes.Reader:
+		remaining = reader.Len()
+	case *strings.Reader:
+		remaining = reader.Len()
+	default:
+		return nil, false, nil
+	}
+
+	if int64(remaining) > maxBytes {
+		return nil, true, fmt.Errorf("%w: input exceeds %d-byte limit", ErrInvalidArgument, maxBytes)
+	}
+
+	if remaining == 0 {
+		return nil, true, nil
+	}
+
+	data := make([]byte, remaining)
+	if _, err := io.ReadFull(r, data); err != nil {
+		return nil, true, err
+	}
+
+	if err := ctx.Err(); err != nil {
+		return nil, true, err
+	}
+
+	return data, true, nil
 }
 
 func (d *decoder) decodeWithHeader(data []byte) (Geometry, bitstream.Header, error) {
